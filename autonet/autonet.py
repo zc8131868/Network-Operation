@@ -4,6 +4,8 @@ import threading
 import pexpect
 import getpass
 import sys
+import re
+import time
 
 from IPy import IP
 child = ""
@@ -11,9 +13,8 @@ show_result = ""
 path = ""
 class AutoNet(object):
 
-	def __init__(self, username, pwd, device_ios):
+	def __init__(self, username, device_ios):
 		self.username = username
-		self.pwd = pwd
 		self.device_ios = device_ios
 		# self.port = port
 		# self.ip = ip
@@ -58,15 +59,18 @@ class AutoNet(object):
 		ping_result["ping_unable:"] = ping_unable
 		return(ping_result)
 
-# login device with telnet or ssh automatically
-	def auto_login(self, ip, username):
-		name = username
+# show command via telnet or ssh
+	def auto_show(self, ip, cmd, URL=" "):
+		name = self.username
 		pwd = getpass.getpass("Pls input your password:")
 		global child
+		global show_result
+		show_result = open(URL, "w")
 		try:
 			telnetlib.Telnet(ip, 23, 5)
-			cmd_login_telnet = "telnet " + ip
+			cmd_login_telnet = "telnet " + ip	
 			child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
+			child.logfile = show_result
 			child.logfile_read = sys.stdout
 			index = child.expect(["username", "login", pexpect.TIMEOUT])
 			if index == 0 or index == 1:
@@ -74,52 +78,164 @@ class AutoNet(object):
 				child.expect("assword")
 				try:
 					child.sendline(pwd)
+					child.expect("#")
+					child.sendline("ter len 0")
+					child.expect("#")
+					child.sendline(cmd)
 				except Exception as e:
-					print(e)
+					print("check username or password again")
 			else:
 				print("Cannot telnet this ip address %s" % ip)
 
-		except:
+		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + name + " " + ip
 			child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
+			child.logfile = show_result
 			child.logfile_read = sys.stdout
 			index = child.expect(["assword", pexpect.TIMEOUT])
 			if index == 0:
 				try:
 					child.sendline(pwd)
+					child.expect("#")
+					child.sendline("ter len 0")
+					child.expect("#")
+					child.sendline("#")
 				except Exception as e:
 					print(e)
+			else:
+				print("Cannot ssh this ip address %s" % ip)
+		except:
+			error_file = open("error_ip", "w")
+			error_file.write(ip)
+			error_file.write("#########################")
 
-# show information on device
-	def auto_show(self, cmd, URL=""):
-		global path
-		path = URL
-		if path == "":
-			child.expect("#")
-			child.sendline("ter len 0")
-			child.expect("#")
-			child.sendline(cmd)
-		else:
-			global show_result
-			show_result = open(path, "w")
-			child.expect("#")
-			child.sendline("ter len 0")
-			child.expect("#")
-			child.sendline(cmd)
+
+# download configuration with single cmd
+	def auto_config(self, ip, cmd, URL=" "):
+		name = self.username
+		pwd = getpass.getpass("Pls input your password:")
+		global child
+		global show_result
+		show_result = open(URL, "w")
+		try:
+			telnetlib.Telnet(ip, 23, 5)
+			cmd_login_telnet = "telnet " + ip
+			child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
 			child.logfile = show_result
-			#child.expect(pexpect.EOF)
+			child.logfile_read = sys.stdout
+			index = child.expect(["username", "login", pexpect.TIMEOUT])
+			if index == 0 or index == 1:
+				child.sendline(name)
+				child.expect("assword")
+				try:
+					child.sendline(pwd)
+					child.expect("#")
+					child.sendline("config")
+					child.sendline("\n")
+					child.expect("#")
+					child.sendline(cmd)
+				except Exception as e:
+					print("check username or password again")
+			else:
+				print("Cannot telnet this ip address %s" % ip)
+
+		except ConnectionRefusedError:
+			cmd_login_ssh = "ssh -l " + name + " " + ip
+			child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
+			child.logfile = show_result
+			child.logfile_read = sys.stdout
+			index = child.expect(["assword", pexpect.TIMEOUT])
+			if index == 0:
+				try:
+					child.sendline(pwd)
+					child.expect("#")
+					child.sendline("config")
+					child.sendline("\n")
+					child.expect("#")
+					child.sendline(cmd)
+				except Exception as e:
+					print("check username or password again")
+			else:
+				print("Cannot ssh this ip address %s" % ip)
+		except:
+			error_file = open("error_ip", "w")
+			error_file.write(ip)
+			error_file.write("#########################")
+
+
+# download configuration from file
+	def auto_config_file(self, ip, file, URL=" "):
+		name = self.username
+		global child
+		global show_result
+		cmd_list =[]
+		pwd = getpass.getpass("Pls input your password:")
+		cmd_file = open(file)
+		show_result = open(URL, "w")
+		for i in cmd_file:
+			cmd_list.append(re.sub("\n", "", i))
+		try:
+			telnetlib.Telnet(ip, 23, 5)
+			cmd_login_telnet = "telnet " + ip
+			child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
+			child.logfile = show_result
+			child.logfile_read = sys.stdout
+			index = child.expect(["username", "login", pexpect.TIMEOUT])
+			if index == 0 or index == 1:
+				child.sendline(name)
+				child.expect("assword")
+				try:
+					child.sendline(pwd)
+					child.expect("#")
+					child.sendline("config")
+					child.sendline("\n")
+					child.expect("#")
+					for cmd in cmd_list:
+						child.sendline(cmd)
+						child.expect("#")
+						time.sleep(1)
+				except Exception as e:
+					print("check username or password again")
+			else:
+				print("Cannot telnet this ip address %s" % ip)
+
+		except ConnectionRefusedError:
+			cmd_login_ssh = "ssh -l " + name + " " + ip
+			child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
+			child.logfile = show_result
+			child.logfile_read = sys.stdout
+			index = child.expect(["assword", pexpect.TIMEOUT])
+			if index == 0:
+				try:
+					child.sendline(pwd)
+					child.expect("#")
+					child.sendline("config")
+					child.sendline("\n")
+					child.expect("#")
+					for cmd in cmd_list:
+						child.sendline(cmd)
+						child.expect("#")
+						time.sleep(1)
+				except Exception as e:
+					print("check username or password again")
+			else:
+				print("Cannot ssh this ip address %s" % ip)
+		except:
+			error_file = open("error_ip", "w")
+			error_file.write(ip)
+			error_file.write("#########################")
+
+
+# save configuration
+	#def write_memory
 
 # Terminate the conncetion
 	def close_connection(self):
-		if path == "":
-			child.expect("#")
-			child.sendline("exit")
-			child.close()
-		else:
-			child.expect("#")
-			child.sendline("exit")			
-			child.close()
-			show_result.close()
+		child.expect("#")
+		child.sendline("end")
+		child.sendline("exit")			
+		child.close()
+		show_result.close()
 
 
 
