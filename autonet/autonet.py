@@ -64,8 +64,8 @@ class AutoNet(object):
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip	
 			self.__child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
-			self.__child.logfile = self.result_file
-			self.__child.logfile_read = sys.stdout
+			self.__child.logfile_read = self.result_file
+			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
 			if index == 0 or index == 1:
 				self.__child.sendline(self.username)
@@ -76,6 +76,8 @@ class AutoNet(object):
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
+					self.__child.expect("#")
+					self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			else:
@@ -84,8 +86,8 @@ class AutoNet(object):
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
 			self.__child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
-			self.__child.logfile = self.result_file
-			self.__child.logfile_read = sys.stdout
+			self.__child.logfile_read = self.result_file
+			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
 			if index == 0:
 				try:
@@ -94,6 +96,8 @@ class AutoNet(object):
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
+					self.__child.expect("#")
+					self.__child.sendline("exit")
 				except Exception as e:
 					print(e)
 			elif index == 1:
@@ -105,6 +109,8 @@ class AutoNet(object):
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
+					self.__child.expect("#")
+					self.__child.sendline("exit")
 				except Exception as e:
 					print(e)				
 			else:
@@ -122,8 +128,8 @@ class AutoNet(object):
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip
 			self.__child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
-			self.__child.logfile = self.result_file
-			self.__child.logfile_read = sys.stdout
+			self.__child.logfile_read = self.result_file
+			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
 			if index == 0 or index == 1:
 				self.__child.sendline(self.username)
@@ -132,11 +138,13 @@ class AutoNet(object):
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
 					self.__child.sendline("config")
-					self.__child.sendline("\n")
+					#self.__child.sendline("\n")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("end")
+					# self.__child.expect("#")
+					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			else:
@@ -145,21 +153,39 @@ class AutoNet(object):
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username + " " + ip
 			self.__child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
-			self.__child.logfile = self.result_file
-			self.__child.logfile_read = sys.stdout
-			index = self.__child.expect(["assword", pexpect.TIMEOUT])
+			self.__child.logfile_read = self.result_file
+			self.__child.logfile = sys.stdout
+			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
 			if index == 0:
 				try:
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
 					self.__child.sendline("config")
-					self.__child.sendline("\n")
+					#self.__child.sendline("\n")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("end")
+					# self.__child.expect("#")
+					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
+			elif index == 1:
+				try:
+					self.__child.sendline("yes")
+					self.__child.expect("assword")					
+					self.__child.sendline(self.password)
+					self.__child.expect("#")
+					self.__child.sendline("config")
+					#self.__child.sendline("\n")
+					self.__child.expect("#")
+					self.__child.sendline(cmd)
+					self.__child.expect("#")
+					self.__child.sendline("end")
+					# self.__child.expect("#")
+					# self.__child.sendline("exit")
+				except Exception as e:
+					print("check username or password again")								
 			else:
 				print("Cannot ssh this ip address %s" % ip)
 		except:
@@ -179,8 +205,8 @@ class AutoNet(object):
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip
 			self.__child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
-			self.__child.logfile = self.result_file
-			self.__child.logfile_read = sys.stdout
+			self.__child.logfile_read = self.result_file
+			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
 			if index == 0 or index == 1:
 				self.__child.sendline(self.username)
@@ -197,6 +223,8 @@ class AutoNet(object):
 						time.sleep(1)
 					self.__child.expect("#")
 					self.__child.sendline("end")
+					# self.__child.expect("#")
+					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			else:
@@ -205,15 +233,15 @@ class AutoNet(object):
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
 			self.__child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
-			self.__child.logfile = self.result_file
-			self.__child.logfile_read = sys.stdout
-			index = self.__child.expect(["assword", pexpect.TIMEOUT])
+			self.__child.logfile_read = self.result_file
+			self.__child.logfile = sys.stdout
+			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
 			if index == 0:
 				try:
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
 					self.__child.sendline("config")
-					self.__child.sendline("\n")
+					#self.__child.sendline("\n")
 					self.__child.expect("#")
 					for cmd in cmd_list:
 						self.__child.sendline(cmd)
@@ -221,8 +249,29 @@ class AutoNet(object):
 						time.sleep(1)
 					self.__child.expect("#")
 					self.__child.sendline("end")
+					# self.__child.expect("#")
+					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
+			elif index == 1:
+				try:
+					self.__child.sendline("yes")
+					self.__child.expect("assword")					
+					self.__child.sendline(self.password)
+					self.__child.expect("#")
+					self.__child.sendline("config")
+					#self.__child.sendline("\n")
+					self.__child.expect("#")
+					for cmd in cmd_list:
+						self.__child.sendline(cmd)
+						self.__child.expect("#")
+						time.sleep(1)
+					self.__child.expect("#")
+					self.__child.sendline("end")
+					# self.__child.expect("#")
+					# self.__child.sendline("exit")
+				except Exception as e:
+					print("check username or password again")				
 			else:
 				print("Cannot ssh this ip address %s" % ip)
 		except:
@@ -241,18 +290,41 @@ class AutoNet(object):
 		elif self.device_ios == "nxos":
 			self.__child.sendline("copy runn start")
 			time.sleep(1)
+		self.__child.expect("#")
+		self.__child.sendline("exit")
 
 
-
+# close log
+	def close_logging(self):
+		try:
+			# self.__child.expect("#")
+			# self.__child.sendline("exit")			
+			self.__child.close()
+			self.result_file.close()
+		except AttributeError:
+			self.error_file.close()
+		except:
+			# self.__child.expect("#")
+			# self.__child.sendline("exit")			
+			self.__child.close()
+			self.result_file.close()
+			self.error_file.close()	
+			
 # Terminate the conncetion
 	def close_connection(self):
 		try:
-			self.__child.expect("#")
-			self.__child.sendline("exit")			
+			# self.__child.expect("#")
+			# self.__child.sendline("exit")			
 			self.__child.close()
 			self.result_file.close()
-		except:
+		except AttributeError:
 			self.error_file.close()
+		except:
+			# self.__child.expect("#")
+			# self.__child.sendline("exit")			
+			self.__child.close()
+			self.result_file.close()
+			self.error_file.close()		
 
 
 
