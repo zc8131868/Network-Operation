@@ -11,7 +11,7 @@ from IPy import IP
 
 class AutoNet(object):
 
-	def __init__(self, username, device_ios, url=" ", url_error_ip=" "):
+	def __init__(self, username, device_ios="cisco_ios", url=" ", url_error_ip=" "):
 		self.username = username
 		self.password = getpass.getpass("Pls input your password:")
 		self.device_ios = device_ios
@@ -63,7 +63,7 @@ class AutoNet(object):
 		try:
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip	
-			self.__child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
@@ -76,8 +76,6 @@ class AutoNet(object):
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
-					self.__child.expect("#")
-					self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			else:
@@ -85,7 +83,7 @@ class AutoNet(object):
 
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
-			self.__child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
@@ -96,8 +94,6 @@ class AutoNet(object):
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
-					self.__child.expect("#")
-					self.__child.sendline("exit")
 				except Exception as e:
 					print(e)
 			elif index == 1:
@@ -109,8 +105,6 @@ class AutoNet(object):
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
-					self.__child.expect("#")
-					self.__child.sendline("exit")
 				except Exception as e:
 					print(e)				
 			else:
@@ -127,7 +121,7 @@ class AutoNet(object):
 		try:
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip
-			self.__child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
@@ -137,14 +131,14 @@ class AutoNet(object):
 				try:
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
-					self.__child.sendline("config")
-					#self.__child.sendline("\n")
+					if self.device_ios == "cisco_ios":
+						self.__child.sendline("config t")
+					else:
+						self.__child.sendline("config")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("end")
-					# self.__child.expect("#")
-					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			else:
@@ -152,7 +146,7 @@ class AutoNet(object):
 
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username + " " + ip
-			self.__child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
@@ -160,14 +154,14 @@ class AutoNet(object):
 				try:
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
-					self.__child.sendline("config")
-					#self.__child.sendline("\n")
+					if self.device_ios == "cisco_ios":
+						self.__child.sendline("config t")
+					else:
+						self.__child.sendline("config")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("end")
-					# self.__child.expect("#")
-					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			elif index == 1:
@@ -176,14 +170,14 @@ class AutoNet(object):
 					self.__child.expect("assword")					
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
-					self.__child.sendline("config")
-					#self.__child.sendline("\n")
+					if self.device_ios == "cisco_ios":
+						self.__child.sendline("config t")
+					else:
+						self.__child.sendline("config")
 					self.__child.expect("#")
 					self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("end")
-					# self.__child.expect("#")
-					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")								
 			else:
@@ -204,7 +198,7 @@ class AutoNet(object):
 		try:
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip
-			self.__child = pexpect.spawn(cmd_login_telnet, timeout=3, encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
@@ -214,17 +208,16 @@ class AutoNet(object):
 				try:
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
-					self.__child.sendline("config")
-					self.__child.sendline("\n")
+					if self.device_ios == "cisco_ios":
+						self.__child.sendline("config t")
+					else:
+						self.__child.sendline("config")
 					self.__child.expect("#")
 					for cmd in cmd_list:
 						self.__child.sendline(cmd)
 						self.__child.expect("#")
-						time.sleep(1)
-					self.__child.expect("#")
+						#time.sleep(1)
 					self.__child.sendline("end")
-					# self.__child.expect("#")
-					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			else:
@@ -232,7 +225,7 @@ class AutoNet(object):
 
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
-			self.__child = pexpect.spawn(cmd_login_ssh, timeout=3,encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
@@ -240,17 +233,15 @@ class AutoNet(object):
 				try:
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
-					self.__child.sendline("config")
-					#self.__child.sendline("\n")
+					if self.device_ios == "cisco_ios":
+						self.__child.sendline("config t")
+					else:					
+						self.__child.sendline("config")
 					self.__child.expect("#")
 					for cmd in cmd_list:
 						self.__child.sendline(cmd)
 						self.__child.expect("#")
-						time.sleep(1)
-					self.__child.expect("#")
 					self.__child.sendline("end")
-					# self.__child.expect("#")
-					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")
 			elif index == 1:
@@ -259,17 +250,15 @@ class AutoNet(object):
 					self.__child.expect("assword")					
 					self.__child.sendline(self.password)
 					self.__child.expect("#")
-					self.__child.sendline("config")
-					#self.__child.sendline("\n")
+					if self.device_ios == "cisco_ios":
+						self.__child.sendline("config t")
+					else:					
+						self.__child.sendline("config")
 					self.__child.expect("#")
 					for cmd in cmd_list:
 						self.__child.sendline(cmd)
 						self.__child.expect("#")
-						time.sleep(1)
-					self.__child.expect("#")
 					self.__child.sendline("end")
-					# self.__child.expect("#")
-					# self.__child.sendline("exit")
 				except Exception as e:
 					print("check username or password again")				
 			else:
@@ -284,47 +273,36 @@ class AutoNet(object):
 # save configuration
 	def write_memory(self):
 		self.__child.expect("#")
-		if self.device_ios == "ios":
+		if self.device_ios == "cisco_ios":
 			self.__child.sendline("write")
-			time.sleep(1)
-		elif self.device_ios == "nxos":
+			#time.sleep(5)
+		elif self.device_ios == "cisco_nxos":
 			self.__child.sendline("copy runn start")
-			time.sleep(1)
-		self.__child.expect("#")
-		self.__child.sendline("exit")
-
+			self.__child.expect("100%")
+			#time.sleep(10)
+		elif self.device_ios == "rg_os":
+			self.__child.sendline("write")
+			#time.sleep(5)
+			
 
 # close log
 	def close_logging(self):
-		try:
-			# self.__child.expect("#")
-			# self.__child.sendline("exit")			
+		try:		
 			self.__child.close()
 			self.result_file.close()
 		except AttributeError:
 			self.error_file.close()
-		except:
-			# self.__child.expect("#")
-			# self.__child.sendline("exit")			
+		except:		
 			self.__child.close()
 			self.result_file.close()
 			self.error_file.close()	
-			
+
+
 # Terminate the conncetion
 	def close_connection(self):
-		try:
-			# self.__child.expect("#")
-			# self.__child.sendline("exit")			
-			self.__child.close()
-			self.result_file.close()
-		except AttributeError:
-			self.error_file.close()
-		except:
-			# self.__child.expect("#")
-			# self.__child.sendline("exit")			
-			self.__child.close()
-			self.result_file.close()
-			self.error_file.close()		
+		self.__child.expect("#")
+		self.__child.sendline("exit")			
+	
 
 
 
