@@ -28,14 +28,15 @@ class AutoNet(object):
 		except Exception as e:
 			ping_unable.append(ip)
 
-#check reachibility of given single ip address
+#check reachibility of given ip address
 	def PING_IP(self,ip):
 		ping_able = []
 		ping_unable = []
 		ping_result = {"ping_able:":[], "ping_unable:":[]}
-		self.__PING(ip, ping_able, ping_unable)
-		ping_result["ping_able:"] = ping_able
-		ping_result["ping_unable:"] = ping_unable
+		for i in ip:
+			self.__PING(i, ping_able, ping_unable)
+			ping_result["ping_able:"] = ping_able
+			ping_result["ping_unable:"] = ping_unable
 		return(ping_result)
 
 # check reachibility of ip addresses of given subnet
