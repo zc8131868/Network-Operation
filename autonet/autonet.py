@@ -315,16 +315,10 @@ class AutoNet(object):
 			self.__child.close()
 			self.result_file.close()
 			self.error_file.close()	
-
-
-# Terminate the conncetion
-	# def close_connection(self):
-	# 	self.__child.expect("#")
-	# 	self.__child.sendline("exit")			
+			
 	
 # Get chassis serial number
 	def get_serial_number(self, ip):
-		#original_file = open("/Users/zhengcheng/Desktop/core_device.txt", "w+")
 		original_file = open("sn_log.txt", "w+")
 		try:
 			telnetlib.Telnet(ip, 23, 5)
@@ -373,7 +367,6 @@ class AutoNet(object):
 			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
 			self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = original_file
-			#self.__child.logfile = sys.stdout
 			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
 			if index == 0:
 				try:
@@ -391,9 +384,6 @@ class AutoNet(object):
 						self.__child.sendline("ter len 0")
 						self.__child.expect("#")
 						self.__child.sendline("show version")
-					# self.__child.sendline("ter len 0")
-					# self.__child.expect("#")
-					# self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("exit")
 				except Exception as e:
@@ -416,9 +406,6 @@ class AutoNet(object):
 						self.__child.sendline("ter len 0")
 						self.__child.expect("#")
 						self.__child.sendline("show version")
-					# self.__child.sendline("ter len 0")
-					# self.__child.expect("#")
-					# self.__child.sendline(cmd)
 					self.__child.expect("#")
 					self.__child.sendline("exit")	
 				except Exception as e:
@@ -440,6 +427,111 @@ class AutoNet(object):
 
 
 
+# Get software version
+	def get_soft_version(self, ip):
+		original_file = open("soft_version.txt", "w+")
+		try:
+			telnetlib.Telnet(ip, 23, 5)
+			cmd_login_telnet = "telnet " + ip	
+			self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding='utf-8')
+			self.__child.logfile_read = original_file
+			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
+			if index == 0 or index == 1:
+				self.__child.sendline(self.username)
+				self.__child.expect("assword")
+				try:
+					self.__child.sendline(self.password)
+					self.__child.expect("#")
+					if self.device_ios == "cisco_nxos":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					elif self.device_ios == "cisco_ios":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					elif self.device_ios == "rg_os":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					self.__child.expect("#")
+					self.__child.sendline("exit")
+				except Exception as e:
+					print("check username or password again")
+			else:
+				print("Cannot telnet this ip address %s" % ip)
+
+			original_file.flush()
+			original_file.seek(0)
+			if self.device_ios == "cisco_nxos":
+				sv = methodlib.cisco_nxos_sv(original_file)
+			elif self.device_ios == "cisco_ios":
+				sv = methodlib.cisco_ios_sv(original_file)
+			elif self.device_ios == "rg_os":
+				sv = methodlib.rg_os_sv(original_file)
+			print(sv)
+			return(sv)
+
+		except ConnectionRefusedError:
+			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
+			self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding='utf-8')
+			self.__child.logfile_read = original_file
+			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
+			if index == 0:
+				try:
+					self.__child.sendline(self.password)
+					self.__child.expect("#")
+					if self.device_ios == "cisco_nxos":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					elif self.device_ios == "cisco_ios":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					elif self.device_ios == "rg_os":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					self.__child.expect("#")
+					self.__child.sendline("exit")
+				except Exception as e:
+					print(e)
+			elif index == 1:
+				try:
+					self.__child.sendline("yes")
+					self.__child.expect("assword")
+					self.__child.sendline(self.password)
+					self.__child.expect("#")
+					if self.device_ios == "cisco_nxos":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					elif self.device_ios == "cisco_ios":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					elif self.device_ios == "rg_os":
+						self.__child.sendline("ter len 0")
+						self.__child.expect("#")
+						self.__child.sendline("show version")
+					self.__child.expect("#")
+					self.__child.sendline("exit")	
+				except Exception as e:
+					print(e)				
+			else:
+				print("Cannot ssh this ip address %s" % ip)		
+
+			original_file.flush()
+			original_file.seek(0)
+			if self.device_ios == "cisco_nxos":
+				sv = methodlib.cisco_nxos_sv(original_file)
+			elif self.device_ios == "cisco_ios":
+				sv = methodlib.cisco_ios_sv(original_file)
+			elif self.device_ios == "rg_os":
+				sv = methodlib.rg_os_sv(original_file)
+			print(sv)
+			return(sv)
 
 
 
