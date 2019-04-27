@@ -289,22 +289,7 @@ class autonet(object):
 			print("Pls check the %s or command and try again:(" % ip)
 			self.error_file.write(ip)
 			self.error_file.write("\n")
-			self.error_file.write("#########################"
-
-# save configuration
-	def write_memory(self):
-		self.__child.expect("#")
-		if self.device_ios == "cisco_ios":
-			self.__child.sendline("write")
-			#time.sleep(5)
-		elif self.device_ios == "cisco_nxos":
-			self.__child.sendline("copy runn start")
-			self.__child.expect("100%")
-			#time.sleep(10)
-		elif self.device_ios == "rg_os":
-			self.__child.sendline("write")
-			time.sleep(5)
-			
+			self.error_file.write("#########################")
 
 # close log
 	def close_logging(self):
