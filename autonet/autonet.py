@@ -10,7 +10,7 @@ import methodlib
 from IPy import IP
 
 
-class AutoNet(object):
+class autonet(object):
 
 	def __init__(self, username, device_ios="cisco_ios", url=" ", url_error_ip=" "):
 		self.username = username
@@ -22,33 +22,33 @@ class AutoNet(object):
 
 
 #check reachibility
-	def __PING(self, ip, ping_able, ping_unable):
+	def __PING(self, ip, reachable, unreachable):
 		try:
 			subprocess.check_call('ping -c 1 %s' %ip, shell=True)
-			ping_able.append(ip)
+			reachable.append(ip)
 		except Exception as e:
-			ping_unable.append(ip)
+			unreachable.append(ip)
 
 #check reachibility of given ip address
 	def PING_IP(self,ip):
-		ping_able = []
-		ping_unable = []
-		ping_result = {"ping_able:":[], "ping_unable:":[]}
+		reachable = []
+		unreachable = []
+		ping_result = {"reachable:":[], "unreachable:":[]}
 		for i in ip:
-			self.__PING(i, ping_able, ping_unable)
-			ping_result["ping_able:"] = ping_able
-			ping_result["ping_unable:"] = ping_unable
+			self.__PING(i, reachable, unreachable)
+		ping_result["reachable:"] = reachable
+		ping_result["unreachable:"] = unreachable
 		return(ping_result)
 
 # check reachibility of ip addresses of given subnet
 	def PING_Subnet(self, subnet):
-		ping_able = []
-		ping_unable = []
-		ping_result = {"ping_able:":[], "ping_unable:":[]}
+		reachable = []
+		unreachable = []
+		ping_result = {"reachable:":[], "unreachable:":[]}
 		threads = []
 		subnet = IP(subnet)
 		for ip in subnet:
-			t = threading.Thread(target=self.__PING, args=(str(ip),ping_able,ping_unable,))
+			t = threading.Thread(target=self.__PING, args=(str(ip),reachable,unreachable,))
 			threads.append(t)
 
 		for i in range(len(threads)):
@@ -56,8 +56,8 @@ class AutoNet(object):
 
 		for i in range(len(threads)):
 			threads[i].join()
-		ping_result["ping_able:"] = ping_able
-		ping_result["ping_unable:"] = ping_unable
+		ping_result["reachable:"] = reachable
+		ping_result["unreachable:"] = unreachable
 		return(ping_result)
 
 # show command via telnet or ssh
@@ -124,7 +124,7 @@ class AutoNet(object):
 			self.error_file.write("#########################")
 
 
-# download configuration with single cmd
+# download configuration with given cmd
 	def auto_config(self, ip, cmd):
 		try:
 			telnetlib.Telnet(ip, 23, 5)
@@ -144,8 +144,9 @@ class AutoNet(object):
 					else:
 						self.__child.sendline("config")
 					self.__child.expect("#")
-					self.__child.sendline(cmd)
-					self.__child.expect("#")
+					for c in cmd:
+						self.__child.sendline(c)
+						self.__child.expect("#")
 					self.__child.sendline("end")
 					self.__child.expect("#")
 					self.__child.sendline("exit")
@@ -169,8 +170,9 @@ class AutoNet(object):
 					else:
 						self.__child.sendline("config")
 					self.__child.expect("#")
-					self.__child.sendline(cmd)
-					self.__child.expect("#")
+					for c in cmd:
+						self.__child.sendline(c)
+						self.__child.expect("#")
 					self.__child.sendline("end")
 					self.__child.expect("#")
 					self.__child.sendline("exit")
@@ -187,8 +189,9 @@ class AutoNet(object):
 					else:
 						self.__child.sendline("config")
 					self.__child.expect("#")
-					self.__child.sendline(cmd)
-					self.__child.expect("#")
+					for c in cmd:
+						self.__child.sendline(c)
+						self.__child.expect("#")
 					self.__child.sendline("end")
 					self.__child.expect("#")
 					self.__child.sendline("exit")
@@ -286,8 +289,7 @@ class AutoNet(object):
 			print("Pls check the %s or command and try again:(" % ip)
 			self.error_file.write(ip)
 			self.error_file.write("\n")
-			self.error_file.write("#########################")
-
+			self.error_file.write("#########################"
 
 # save configuration
 	def write_memory(self):
@@ -301,7 +303,7 @@ class AutoNet(object):
 			#time.sleep(10)
 		elif self.device_ios == "rg_os":
 			self.__child.sendline("write")
-			#time.sleep(5)
+			time.sleep(5)
 			
 
 # close log
@@ -325,7 +327,6 @@ class AutoNet(object):
 			cmd_login_telnet = "telnet " + ip	
 			self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding='utf-8')
 			self.__child.logfile_read = original_file
-			#self.__child.logfile = sys.stdout 
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
 			if index == 0 or index == 1:
 				self.__child.sendline(self.username)
@@ -360,7 +361,7 @@ class AutoNet(object):
 				sn = methodlib.cisco_ios_sn(original_file)
 			elif self.device_ios == "rg_os":
 				sn = methodlib.rg_os_sn(original_file)
-			print(sn)
+			# print(sn)
 			return(sn)
 
 		except ConnectionRefusedError:
@@ -421,14 +422,18 @@ class AutoNet(object):
 				sn = methodlib.cisco_ios_sn(original_file)
 			elif self.device_ios == "rg_os":
 				sn = methodlib.rg_os_sn(original_file)
-			print(sn)
+			# print(sn)
 			return(sn)
-
+		except:
+			print("Pls check the %s or command and try again :(" % ip)
+			self.error_file.write(ip)
+			self.error_file.write("\n")
+			self.error_file.write("#########################")
 
 
 
 # Get software version
-	def get_soft_version(self, ip):
+	def get_version(self, ip):
 		original_file = open("soft_version.txt", "w+")
 		try:
 			telnetlib.Telnet(ip, 23, 5)
@@ -469,7 +474,6 @@ class AutoNet(object):
 				sv = methodlib.cisco_ios_sv(original_file)
 			elif self.device_ios == "rg_os":
 				sv = methodlib.rg_os_sv(original_file)
-			print(sv)
 			return(sv)
 
 		except ConnectionRefusedError:
@@ -530,9 +534,12 @@ class AutoNet(object):
 				sv = methodlib.cisco_ios_sv(original_file)
 			elif self.device_ios == "rg_os":
 				sv = methodlib.rg_os_sv(original_file)
-			print(sv)
 			return(sv)
-
+		except:
+			print("Pls check the %s or command and try again :(" % ip)
+			self.error_file.write(ip)
+			self.error_file.write("\n")
+			self.error_file.write("#########################")
 
 
 		
