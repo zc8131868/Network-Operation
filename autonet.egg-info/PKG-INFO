@@ -1,0 +1,22 @@
+Metadata-Version: 2.1
+Name: autonet
+Version: 0.1.6
+Summary: Some tools of network automated operation for multiple vendors
+Home-page: https://github.com/zc8131868/Network-Operation
+Author: Cheng Zheng
+Author-email: zc8131868@gmail.com
+License: MIT
+Description: Hello, Network-Operation is aimed at providing some tools or modules for network automated operation.
+        If you are interested in it, find bugs or have any requirement, feel free to contact me via zc8131868@gmail.com
+        
+Keywords: network,automated,operation
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Requires-Python: >=3
+Description-Content-Type: text/markdown

@@ -1,0 +1,10 @@
+README.md
+setup.py
+autonet/__init__.py
+autonet/autonet.py
+autonet/methodlib.py
+autonet.egg-info/PKG-INFO
+autonet.egg-info/SOURCES.txt
+autonet.egg-info/dependency_links.txt
+autonet.egg-info/requires.txt
+autonet.egg-info/top_level.txt
