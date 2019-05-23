@@ -12,13 +12,17 @@ from IPy import IP
 
 class autonet(object):
 
-	def __init__(self, username, device_ios="cisco_ios", url=" ", url_error_ip=" "):
+	def __init__(self, username, password="", device_ios="cisco_ios", url=" ", url_error_ip=" "):
 		self.username = username
-		self.password = getpass.getpass("Pls input your password:")
 		self.device_ios = device_ios
 		self.result_file = open(url, "w")
 		self.error_file = open(url_error_ip, "w")
 		__child = ""
+		if password == "":
+			self.password = getpass.getpass("Pls input your password:")
+		else:
+			self.password = password
+
 
 
 #check reachibility
