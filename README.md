@@ -9,16 +9,15 @@ import getpass
 
 pwd = getpass.getpass("pls input your password::")
 
-a = autonet.autonet(username="chengzheng", 
-			
-			password = pwd,
-		    	
-			device_ios= "cisco_ios", 
-		    	
-			url="/Users/zhengcheng/Desktop/result.txt", 
-		    	
+a = autonet.autonet(
+
+			username="chengzheng",                                                                       
+			password = pwd,    
+			device_ios= "cisco_ios",
+			url="/Users/zhengcheng/Desktop/result.txt",
 			url_error_ip="/Users/zhengcheng/Desktop/error_ip.txt"
-		    	)
+		  	)
+
   
 b = a.PING_IP(["1.1.1.1", "2.2.2.2)]
 
