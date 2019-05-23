@@ -10,8 +10,7 @@ import getpass
 pwd = getpass.getpass("pls input your password::")
 
 a = autonet.autonet(username="chengzheng", 
-
-                    password = pwd,
+			password = pwd,
 		    
 		    	device_ios= "cisco_ios", 
 		    
