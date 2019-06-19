@@ -38,7 +38,7 @@ class autonet(object):
 		reachable = []
 		unreachable = []
 		threads = []
-		ping_result = {"reachable":[], "unreachable":[]}
+		ping_result = {"reachable":reachable, "unreachable":unreachable}
 		for i in ip:
 			t = threading.Thread(target=self.__PING, args=(i,reachable,unreachable))
 			threads.append(t)
@@ -49,15 +49,13 @@ class autonet(object):
 		for i in range(len(threads)):
 			threads[i].join()
 
-		ping_result["reachable"] = reachable
-		ping_result["unreachable"] = unreachable
 		return(ping_result)
 
 # check reachibility of ip addresses of given subnet
 	def PING_Subnet(self, subnet):
 		reachable = []
 		unreachable = []
-		ping_result = {"reachable":[], "unreachable":[]}
+		ping_result = {"reachable":reachable, "unreachable":unreachable}
 		threads = []
 		subnet = IP(subnet)
 		for ip in subnet:
@@ -69,8 +67,7 @@ class autonet(object):
 
 		for i in range(len(threads)):
 			threads[i].join()
-		ping_result["reachable"] = reachable
-		ping_result["unreachable"] = unreachable
+
 		return(ping_result)
 
 # show command via telnet or ssh
@@ -78,7 +75,7 @@ class autonet(object):
 		try:
 			telnetlib.Telnet(ip, 23, 5)
 			cmd_login_telnet = "telnet " + ip	
-			self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_telnet, timeout=5, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
@@ -90,17 +87,18 @@ class autonet(object):
 					self.__child.expect("#")
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
-					self.__child.sendline(cmd)
-					self.__child.expect("#")
+					for c in cmd:
+						self.__child.sendline(c)
+						self.__child.expect("#")
 					self.__child.sendline("exit")
 				except Exception as e:
-					print("check username or password again")
+					print("check username and password")
 			else:
 				print("Cannot telnet this ip address %s" % ip)
 
 		except ConnectionRefusedError:
 			cmd_login_ssh = "ssh -l " + self.username+ " " + ip
-			self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding='utf-8')
+			self.__child = pexpect.spawn(cmd_login_ssh, timeout=5, encoding='utf-8')
 			self.__child.logfile_read = self.result_file
 			self.__child.logfile = sys.stdout
 			index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
@@ -110,8 +108,9 @@ class autonet(object):
 					self.__child.expect("#")
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
-					self.__child.sendline(cmd)
-					self.__child.expect("#")
+					for c in cmd:
+						self.__child.sendline(c)
+						self.__child.expect("#")
 					self.__child.sendline("exit")
 				except Exception as e:
 					print(e)
@@ -123,8 +122,9 @@ class autonet(object):
 					self.__child.expect("#")
 					self.__child.sendline("ter len 0")
 					self.__child.expect("#")
-					self.__child.sendline(cmd)
-					self.__child.expect("#")
+					for c in cmd:
+						self.__child.sendline(c)
+						self.__child.expect("#")
 					self.__child.sendline("exit")
 				except Exception as e:
 					print(e)				
@@ -318,7 +318,7 @@ class autonet(object):
 				cmd_login_telnet = "telnet " + ip
 				self.__child = pexpect.spawn(cmd_login_telnet, timeout=20, encoding="utf-8")
 				self.__child.logfile_read = original_file
-				# self.__child.logfile = sys.stdout
+				self.__child.logfile = sys.stdout
 				index = self.__child.expect(["username", "login", pexpect.TIMEOUT])
 				if index == 0 or index == 1:
 					self.__child.sendline(self.username)
@@ -359,7 +359,7 @@ class autonet(object):
 				cmd_login_ssh = "ssh -l "+ self.username + " " + ip
 				self.__child = pexpect.spawn(cmd_login_ssh, timeout=20, encoding="utf-8")
 				self.__child.logfile_read = original_file
-				# self.__child.logfile = sys.stdout
+				self.__child.logfile = sys.stdout
 				index = self.__child.expect(["assword", "yes/no", pexpect.TIMEOUT])
 				if index == 0:
 					try:
