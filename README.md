@@ -27,7 +27,7 @@ b = a.get_version("30.31.190.94")
 
 b = a.get_serial_number("30.31.190.94")
 
-a.auto_show("1.1.1.1", "show ntp status")
+a.auto_show("1.1.1.1", ["show ntp status"])
 
 a.auto_config("2.2.2.2", ["hostname test", "interface g0/1", "switchport mode trunk"])
 
