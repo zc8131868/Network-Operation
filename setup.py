@@ -4,7 +4,7 @@ from setuptools import find_packages
 setup(
 	name = "autonet",
 	packages = find_packages(),
-	version = "0.1.6",
+	version = "0.2.1",
 	description = "Some tools of network automated operation for multiple vendors",
 	long_description = open("README.md").read(),
 	long_description_content_type = "text/markdown",
